@@ -18,6 +18,8 @@ import (
 
 var SOURCE_DISK = "/dev/disk5"
 
+// var SOURCE_DISK = "/Users/nathan/Downloads/A001_11171838_C008.braw"
+
 // Target location to save recovered files to
 var TARGET_LOCATION = "/Volumes/backup/braw-files"
 
@@ -28,10 +30,10 @@ var RESTART_FROM_POSITION = true
 
 // START_STREAM_MATCH = b"\x00\x00\x00\x08wide***\xf8mdat"
 var START_STREAM_MATCH = []byte{0, 0, 0, 8, 119, 105, 100, 101, 42, 42, 42, 248, 109, 100, 97, 116}
-var START_WAV_MATCH = []byte{0x52, 0x49, 0x46, 0x46, 42, 42, 42, 42, 57, 41, 56, 45, 66, 0x6d, 74, 20}
-var STAR_BYTE = []byte{42}
+var START_WAV_MATCH = []byte{0x52, 0x49, 0x46, 0x46, 0x2a, 0x2a, 0x2a, 0x2a, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6d, 0x74, 0x20}
+var STAR_BYTE = []byte{0x2a}
 var DATA_BYTES = []byte{100, 97, 116, 97}
-var NULL_BTYE = []byte{0}
+var NULL_BTYE = []byte{0x0}
 
 var POSITION_FILENAME = "position.go.json"
 
@@ -299,17 +301,20 @@ func (rr *RocoveryRunner) Run() {
 					rr.Log("Found file! starting write out "+filename, true)
 					rr.match_buffer = nil
 				}
-			} else if bytes.Equal(onebyte, START_WAV_MATCH[rr.wav_current_match_pos:rr.wav_current_match_pos+1]) || bytes.Equal(START_WAV_MATCH[rr.wav_current_match_pos:rr.wav_current_match_pos+1], STAR_BYTE) {
-				rr.wav_current_match_pos += 1
-				if rr.wav_current_match_pos == len(START_WAV_MATCH) {
-					rr.wav_current_match_pos = 0
-					rr.Log("Found wav file!", true)
-				}
 			} else {
 				rr.current_match_pos = 0
-				rr.wav_current_match_pos = 0
 				rr.match_buffer = nil
 			}
+		}
+
+		if bytes.Equal(onebyte, START_WAV_MATCH[rr.wav_current_match_pos:rr.wav_current_match_pos+1]) || bytes.Equal(START_WAV_MATCH[rr.wav_current_match_pos:rr.wav_current_match_pos+1], STAR_BYTE) {
+			rr.wav_current_match_pos += 1
+			if rr.wav_current_match_pos == len(START_WAV_MATCH) {
+				rr.wav_current_match_pos = 0
+				rr.Log("\nFound wav file!", true)
+			}
+		} else {
+			rr.wav_current_match_pos = 0
 		}
 
 		onebyte, err = rr.file_reader.ReadOne()
