@@ -1,7 +1,7 @@
-# Intro
+# Overview
 
-Simple Python script to recover braw files from a damaged disk.
+Simple Python and golang attempts at recovering braw files from a damaged disk.
 
-Clone the repo and customize the global variables at the top of the file.
+It works in some cases.
 
-Uses stock python 3. No other dependencies.
+Read the code, compile yourself, use at your own risk.
